@@ -158,17 +158,17 @@ setTimeout(()=>{
   sun.children.filter(child=>child.isSprite&&child.material?.map&&Math.round(child.scale.x)===210).forEach(child=>child.visible=false);
   const coronaObjects=sun.children.filter(child=>(child.isSprite&&child.scale.x>=70)||child===corona);
   let flareEnabled=true,spikesEnabled=true,nebulaStrength=1,zodiacEnabled=true;
-  coronaObjects.forEach(object=>{if(object.isSprite&&object.scale.x>130)object.visible=false});
+  coronaObjects.forEach(object=>{object.visible=flareEnabled});
 
   const root=document.querySelector('.ui');const visualPanel=document.createElement('section');visualPanel.className='visual-panel';visualPanel.setAttribute('aria-label','深空视觉设置');visualPanel.innerHTML='<button class="visual-toggle" type="button" aria-expanded="false">深空视觉</button><div class="visual-body"><label><input id="toggleZodiac" type="checkbox" checked>显示黄道光</label><label><input id="toggleSpikes" type="checkbox" checked>恒星星芒</label><label><input id="toggleFlare" type="checkbox" checked>镜头眩光</label><label class="range">星云强度<input id="nebulaLevel" type="range" min="0" max="100" value="55"></label></div>';root.append(visualPanel);
   const visualToggle=visualPanel.querySelector('.visual-toggle'),visualBody=visualPanel.querySelector('.visual-body');visualToggle.onclick=()=>{const open=visualPanel.classList.toggle('open');visualToggle.setAttribute('aria-expanded',String(open))};
-  visualPanel.querySelector('#toggleZodiac').onchange=e=>{zodiacEnabled=e.target.checked;zodiacGlow.visible=zodiacEnabled};
+  visualPanel.querySelector('#toggleZodiac').onchange=e=>{zodiacEnabled=e.target.checked;zodiacGlow.visible=zodiacEnabled;zodiacalLight.visible=zodiacEnabled};
   visualPanel.querySelector('#toggleSpikes').onchange=e=>{spikesEnabled=e.target.checked;[faintStars,mediumStars,brightStars].forEach(field=>field.material.uniforms.uSpikes.value=spikesEnabled?1:0)};
-  visualPanel.querySelector('#toggleFlare').onchange=e=>{flareEnabled=e.target.checked;coronaObjects.forEach(object=>{if(object.isSprite&&object.scale.x>130)object.visible=flareEnabled})};
+  visualPanel.querySelector('#toggleFlare').onchange=e=>{flareEnabled=e.target.checked;coronaObjects.forEach(object=>{object.visible=flareEnabled})};
   visualPanel.querySelector('#nebulaLevel').oninput=e=>{nebulaStrength=Number(e.target.value)/55;nebulae.forEach((cloud,index)=>cloud.material.opacity=[.66,.62,.48,.44][index]*nebulaStrength)};
   if(mobile){visualPanel.querySelector('#toggleFlare').checked=false;visualPanel.querySelector('#toggleFlare').dispatchEvent(new Event('change'));visualPanel.querySelector('#nebulaLevel').value=38;visualPanel.querySelector('#nebulaLevel').dispatchEvent(new Event('input'))}
 
-  function animateDeepSpace(time){deepSky.position.copy(camera.position);farLayer.children.filter(child=>child!==deepSky).forEach(child=>{if(child.isMesh)child.lookAt(camera.position)});const seconds=time*.001;[faintStars,mediumStars,brightStars].forEach((field,index)=>field.material.uniforms.uTime.value=seconds*(.18+index*.04));const angle=controls.target.clone().sub(camera.position).normalize().dot(new THREE.Vector3(0,0,1));zodiacGlow.material.opacity=zodiacEnabled*(.08+.16*Math.max(0,angle));localDustField.material.opacity=.12+.12*Math.max(0,angle);requestAnimationFrame(animateDeepSpace)}requestAnimationFrame(animateDeepSpace);
+  function animateDeepSpace(time){deepSky.position.copy(camera.position);farLayer.children.filter(child=>child!==deepSky).forEach(child=>{if(child.isMesh)child.lookAt(camera.position)});const seconds=time*.001;[faintStars,mediumStars,brightStars].forEach((field,index)=>field.material.uniforms.uTime.value=seconds*(.18+index*.04));const angle=controls.target.clone().sub(camera.position).normalize().dot(new THREE.Vector3(0,0,1));zodiacGlow.visible=zodiacEnabled;zodiacalLight.visible=zodiacEnabled;zodiacGlow.material.opacity=zodiacEnabled*(.12+.24*Math.max(0,angle));zodiacalLight.material.opacity=zodiacEnabled?.05:0;localDustField.material.opacity=.12+.12*Math.max(0,angle);requestAnimationFrame(animateDeepSpace)}requestAnimationFrame(animateDeepSpace);
 },0);
 
 
